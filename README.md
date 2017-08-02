@@ -101,7 +101,7 @@ The output of the unit tests are created/overwritten into the /target/surefire-r
 
 This unit test suite also will generate an MUnit test coverage report. These results are stored in the /target/munit-reports/coverage folder. Opening the api-report.html in the browser will display the latest coverage report. Example is shown below:
 
-
+![MUnitSampleCoverageReport.png](https://github.com/sasisiv1/myorg-api/blob/master/MUnitSampleCoverageReport.png)
 
 ## Deploying MyOrganization API on Anypoint Studio Mule Embedded runtime
 
