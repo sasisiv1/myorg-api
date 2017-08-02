@@ -52,7 +52,7 @@ In order to have this project executed successully, you will need to have the fo
 
 This project contains 30 Unit Tests in total that will test the functions of the API and associated subflows.
 
-### Running MUnit Tests
+### Running MUnit Tests via Anypoint Studio
 In order to execute the unit tests of this project:
 1. Right-Click on the project root folder > Mule > Configure Maven...
 2. Check that the Maven installation directory is set, and the Base command is set to _**mvn clean test**_ and click OK.
@@ -80,6 +80,10 @@ In order to execute the unit tests of this project:
         BUILD SUCCESS
         ------------------------------------------------------------------------
 
+### Running MUnit Tests via Command Prompt
+The MUnit tests can also be run outside of Anypoint Studio, via the command prompt, given that you have set-up M2_HOME or MAVEN_HOME and the JAVA_HOME environment variables.
+To do this, navigate to the root directory of the project (containing the pom.xml) and execute the command: _**mvn clean test**_. This will begin to execute the test cases and output shown will be similar to that above.
+
 ### Understanding the MUnit Tests
 The RAML file was imported into Mule Anypoint Studio APIKit which created the necessary flows for the API resources and methods defined. In addition the associated subflows that would be assumed to be created to complete this API have been created, and left unimplemented. These subflows, are later mocked within the MUnit test cases, to simulate the behaviour that would be observed.
 
@@ -91,6 +95,13 @@ This is the main MUnit XML for the MyOrganization API Customers resource. This w
 
 2. /src/test/munit/myorganization-subflow-test.xml
 This is the main Munit XML for the related subflows that have been defined. The unit tests included within this file are provided only as a skeleton as the actual sub-flows are unimplemented.
+
+### View MUnit Test Case Results
+The output of the unit tests are created/overwritten into the /target/surefire-reports folder. 
+
+This unit test suite also will generate an MUnit test coverage report. These results are stored in the /target/munit-reports/coverage folder. Opening the api-report.html in the browser will display the latest coverage report. Example is shown below:
+
+
 
 ## Deploying MyOrganization API on Anypoint Studio Mule Embedded runtime
 
