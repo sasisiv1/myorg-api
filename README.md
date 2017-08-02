@@ -100,7 +100,7 @@ Similar to executing the unit test, to deploy the API we will utilise maven as f
 2. Check that the Maven installation directory is set, and the Base command is set to _**mvn clean install**_ and click OK.
 3. Right-Click on the project root folder > Run As > Mule Application with Maven. This will begin to execute the unit tests for the project, and once completed, begin the start-up of the API. Once completed, you should see the following API Landing Page:
 
-![APILandingPage.png]({{site.baseurl}}/myorg-api/APILandingPage.png)
+![APILandingPage.png](https://github.com/sasisiv1/myorg-api/blob/master/APILandingPage.png)
 
 
 
