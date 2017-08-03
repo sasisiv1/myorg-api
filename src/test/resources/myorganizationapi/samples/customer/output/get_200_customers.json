@@ -1,0 +1,14 @@
+[{
+  "customerId": "111",
+  "firstName":"James",
+  "lastName": "Test",
+  "address": "456 Mars Road",
+  "active": true
+},
+{
+  "customerId": "222",
+  "firstName":"Jane",
+  "lastName": "Doe",
+  "address": "123 Fake Street",
+  "active": false
+}]

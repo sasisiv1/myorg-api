@@ -1,0 +1,7 @@
+{
+  "customerId": "333",
+  "firstName":"John",
+  "lastName": "Doe",
+  "address": "123 Fake Street",
+  "active": true
+}

@@ -1,0 +1,6 @@
+{
+  "status": 404,
+  "errorMessage" : "Customer update failed.",
+  "errorCode": 1002,
+  "additionalInfo": "Update of the customer record failed, as the customer record does not exist for <<resourcePathName|!singularize>>Id = {<<resourcePathName|!singularize>>Id}"
+}

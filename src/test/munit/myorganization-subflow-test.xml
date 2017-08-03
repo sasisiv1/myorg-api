@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.8.1" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+		http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd">
+	<spring:beans>
+		<spring:import resource="classpath:api.xml" />
+	</spring:beans>
+	<munit:config mock-connectors="false" mock-inbounds="false" doc:name="MUnit configuration" />
+
+	<!-- Unit Test stub for the commonValidateToken Subflow -->
+	<munit:test name="commonValidateTokenSubflowTest" description="Test the commonValidateTokenSubflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="commonValidateToken" doc:name="Call commonValidateToken Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+	<!-- Unit Test stub for the commonValidateRequest Subflow -->
+	<munit:test name="commonValidateRequestSubflowTest" description="Test the commonValidateRequest Subflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="commonValidateRequest" doc:name="Call commonValidateRequest Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+	<!-- Unit Test stub for the retrieveCustomers Subflow -->
+	<munit:test name="retrieveCustomersSubflowTest" description="Test the retrieveCustomers Subflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="retrieveCustomers" doc:name="Call retrieveCustomersSubflowTest Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+	<!-- Unit Test stub for the createNewCustomer Subflow -->
+	<munit:test name="createNewCustomerSubflowTest" description="Test the createNewCustomer Subflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="createNewCustomer" doc:name="Call createNewCustomer Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+	<!-- Unit Test stub for the retrieveCustomerRecord Subflow -->
+	<munit:test name="retrieveCustomerRecordSubflowTest" description="Test the retrieveCustomerRecord Subflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="retrieveCustomerRecord" doc:name="Call retrieveCustomerRecord Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+	<!-- Unit Test stub for the updateCustomerRecord Subflow -->
+	<munit:test name="updateCustomerRecordSubflowTest" description="Test the updateCustomerRecord Subflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="updateCustomerRecord" doc:name="Call updateCustomerRecord Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+	<!-- Unit Test stub for the deleteCustomerRecord Subflow -->
+	<munit:test name="deleteCustomerRecordSubflowTest" description="Test the deleteCustomerRecord Subflow">
+		<!-- Currently unimplemented -->
+		<flow-ref name="deleteCustomerRecord" doc:name="Call deleteCustomerRecord Flow" />
+		<mock:verify-call messageProcessor=".*:.*" times="1" doc:name="Verify Call">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Logger']" />
+			</mock:with-attributes>
+		</mock:verify-call>
+	</munit:test>
+
+</mule>

@@ -1,0 +1,6 @@
+{
+  "status": 400,
+  "errorMessage": "Invalid/Bad Request received.",
+  "errorCode": 4000,
+  "additionalInfo": "Please check your request payload/structure is correct and try again."
+}
