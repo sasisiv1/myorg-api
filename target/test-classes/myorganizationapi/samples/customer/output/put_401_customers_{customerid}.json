@@ -1,0 +1,6 @@
+{
+  "status": 401,
+  "errorMessage": "Missing Bearer Token",
+  "errorCode": 4001,
+  "additionalInfo": "Insufficient Credentials provided."
+}

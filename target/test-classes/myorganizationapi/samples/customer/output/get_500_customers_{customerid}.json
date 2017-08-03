@@ -1,0 +1,6 @@
+{
+  "status": 500,
+  "errorMessage": "Internal server error.",
+  "errorCode": 5000,
+  "additionalInfo": "An unexpected error occurred. If the issue persists please contact your system administrator."
+}

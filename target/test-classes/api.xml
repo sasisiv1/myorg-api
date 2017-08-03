@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+	<http:listener-config name="api-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
+	<apikit:config name="api-config" raml="api.raml" consoleEnabled="false" doc:name="Router" />
+
+	<!-- Main API Flow -->
+	<!-- TODO: Token and Request Validation -->
+	<flow name="api-main">
+		<http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
+
+		<!-- Perform the Token Validation here -->
+		<flow-ref name="commonValidateToken" doc:name="CommFlow Reference" />
+		<choice doc:name="Choice">
+			<when expression="#[flowVars.validToken]">
+				<logger message="Token Validation Passed" level="INFO" />
+
+				<!-- Perform the Request Validation here -->
+				<flow-ref name="commonValidateRequest" doc:name="CommFlow Reference" />
+				<choice>
+					<when expression="#[flowVars.validRequest]">
+						<apikit:router config-ref="api-config" doc:name="APIkit Router" />
+					</when>
+					<otherwise>
+						<!-- Set HTTP 400 Response -->
+						<set-payload value="{&#xA;  &quot;status&quot;: 400,&#xA;  &quot;errorMessage&quot;: &quot;Invalid/Bad Request received.&quot;,&#xA;  &quot;errorCode&quot;: 4000,&#xA;  &quot;additionalInfo&quot;: &quot;Please check your request payload/structure is correct and try again.&quot;&#xA;}" doc:name="Set Payload" />
+						<message-properties-transformer doc:name="Set http status Properties">
+							<add-message-property key="Content-Type" value="application/json" />
+							<add-message-property key="http.status" value="400" />
+						</message-properties-transformer>
+
+					</otherwise>
+				</choice>
+
+			</when>
+			<otherwise>
+				<!-- Set HTTP 401 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 401,&#xA;  &quot;errorMessage&quot;: &quot;Missing Bearer Token&quot;,&#xA;  &quot;errorCode&quot;: 4001,&#xA;  &quot;additionalInfo&quot;: &quot;Insufficient Credentials provided.&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="401" />
+				</message-properties-transformer>
+			</otherwise>
+		</choice>
+
+		<exception-strategy ref="api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
+	</flow>
+	<flow name="api-console">
+		<http:listener config-ref="api-httpListenerConfig" path="/console/*" doc:name="HTTP" />
+		<apikit:console config-ref="api-config" doc:name="APIkit Console" />
+	</flow>
+
+	<!-- /GET CUSTOMERS API -->
+	<flow name="get:/customers:api-config">
+
+		<!-- Retrieve Customers -->
+		<flow-ref name="retrieveCustomers" doc:name="Retrieve Existing Customer" />
+
+		<choice>
+			<when expression="#[(flowVars.customerResult != empty) &amp;&amp; (payload != 'EXCEPTION')]">
+				<set-payload value="[{&#xA;  &quot;customerId&quot;: &quot;111&quot;,&#xA;  &quot;firstName&quot;:&quot;James&quot;,&#xA;  &quot;lastName&quot;: &quot;Test&quot;,&#xA;  &quot;address&quot;: &quot;456 Mars Road&quot;,&#xA;  &quot;active&quot;: true&#xA;},&#xA;{&#xA;  &quot;customerId&quot;: &quot;222&quot;,&#xA;  &quot;firstName&quot;:&quot;Jane&quot;,&#xA;  &quot;lastName&quot;: &quot;Doe&quot;,&#xA;  &quot;address&quot;: &quot;123 Fake Street&quot;,&#xA;  &quot;active&quot;: false&#xA;}]" doc:name="Set Payload" />
+			</when>
+			<when expression="#[payload == 'EXCEPTION']">
+				<!-- Set HTTP 500 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 500,&#xA;  &quot;errorMessage&quot;: &quot;Internal server error.&quot;,&#xA;  &quot;errorCode&quot;: 5000,&#xA;  &quot;additionalInfo&quot;: &quot;An unexpected error occurred. If the issue persists please contact your system administrator.&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="500" />
+				</message-properties-transformer>
+			</when>
+			<otherwise>
+
+				<!-- Set HTTP 404 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 404,&#xA;  &quot;errorMessage&quot;: &quot;No customers found&quot;,&#xA;  &quot;errorCode&quot;: 1001,&#xA;  &quot;additionalInfo&quot;: &quot;No customer records were found. Please check your query and try again&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="404" />
+				</message-properties-transformer>
+
+			</otherwise>
+		</choice>
+
+	</flow>
+
+
+	<flow name="post:/customers:application/json:api-config">
+
+		<!-- Retrieve Customers -->
+		<flow-ref name="createNewCustomer" doc:name="Create a new Customer Flow" />
+
+		<choice>
+			<when expression="#[(flowVars.newCustomerRecord != empty) &amp;&amp; (payload != 'EXCEPTION')]">
+
+				<set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+				<set-payload value="{&#xA;  &quot;customerId&quot;: &quot;333&quot;,&#xA;  &quot;firstName&quot;:&quot;John&quot;,&#xA;  &quot;lastName&quot;: &quot;Doe&quot;,&#xA;  &quot;address&quot;: &quot;123 Fake Street&quot;,&#xA;  &quot;active&quot;: true&#xA;}" doc:name="Set Payload" />
+			</when>
+			<otherwise>
+
+				<!-- Set HTTP 500 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 500,&#xA;  &quot;errorMessage&quot;: &quot;Internal server error.&quot;,&#xA;  &quot;errorCode&quot;: 5000,&#xA;  &quot;additionalInfo&quot;: &quot;An unexpected error occurred. If the issue persists please contact your system administrator.&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="500" />
+				</message-properties-transformer>
+
+			</otherwise>
+		</choice>
+	</flow>
+
+
+	<flow name="get:/customers/{customerId}:api-config">
+
+		<!-- Retrieve Customers -->
+		<flow-ref name="retrieveCustomerRecord" doc:name="Retrieve Existing Customer Record" />
+
+		<choice>
+			<when expression="#[(flowVars.customerRecord != empty) &amp;&amp; (payload != 'EXCEPTION')]">
+				<set-payload value="{&#xA;  &quot;customerId&quot;: &quot;333&quot;,&#xA;  &quot;firstName&quot;: &quot;John&quot;,&#xA;  &quot;lastName&quot; : &quot;Doe&quot;,&#xA;  &quot;address&quot;: &quot;123 Fake Street&quot;,&#xA;  &quot;active&quot;: true&#xA;}" doc:name="Set Payload" />
+			</when>
+			<when expression="#[payload == 'EXCEPTION']">
+				<!-- Set HTTP 500 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 500,&#xA;  &quot;errorMessage&quot;: &quot;Internal server error.&quot;,&#xA;  &quot;errorCode&quot;: 5000,&#xA;  &quot;additionalInfo&quot;: &quot;An unexpected error occurred. If the issue persists please contact your system administrator.&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="500" />
+				</message-properties-transformer>
+			</when>
+			<otherwise>
+
+				<!-- Set HTTP 404 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 404,&#xA;  &quot;errorMessage&quot;: &quot;The customer record was not found&quot;,&#xA;  &quot;errorCode&quot;: 1001,&#xA;  &quot;additionalInfo&quot;: &quot;No customer record with the customerId = {customerId} were found. Please check your query and try again&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="404" />
+				</message-properties-transformer>
+
+			</otherwise>
+		</choice>
+
+	</flow>
+
+	<flow name="put:/customers/{customerId}:application/json:api-config">
+
+		<!-- Update Customers -->
+		<flow-ref name="updateCustomerRecord" doc:name="Update Existing Customer Record" />
+
+		<choice>
+			<when expression="#[(flowVars.customerRecord != empty) &amp;&amp; (payload != 'EXCEPTION')]">
+				<set-payload value="{&#xA;  &quot;customerId&quot;: &quot;333&quot;,&#xA;  &quot;firstName&quot;: &quot;John&quot;,&#xA;  &quot;lastName&quot;: &quot;Doe&quot;,&#xA;  &quot;address&quot;: &quot;700 Mars Road&quot;,&#xA;  &quot;active&quot;: true&#xA;}" doc:name="Set Payload" />
+			</when>
+			<when expression="#[payload == 'EXCEPTION']">
+				<!-- Set HTTP 500 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 500,&#xA;  &quot;errorMessage&quot;: &quot;Internal server error.&quot;,&#xA;  &quot;errorCode&quot;: 5000,&#xA;  &quot;additionalInfo&quot;: &quot;An unexpected error occurred. If the issue persists please contact your system administrator.&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="500" />
+				</message-properties-transformer>
+			</when>
+			<otherwise>
+
+				<!-- Set HTTP 404 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 404,&#xA;  &quot;errorMessage&quot; : &quot;Customer update failed.&quot;,&#xA;  &quot;errorCode&quot;: 1002,&#xA;  &quot;additionalInfo&quot;: &quot;Update of the customer record failed, as the customer record does not exist for &lt;&lt;resourcePathName|!singularize&gt;&gt;Id = {&lt;&lt;resourcePathName|!singularize&gt;&gt;Id}&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="404" />
+				</message-properties-transformer>
+
+			</otherwise>
+		</choice>
+
+	</flow>
+	<flow name="delete:/customers/{customerId}:api-config">
+
+		<!-- Delete Customers -->
+		<flow-ref name="deleteCustomerRecord" doc:name="Delete Existing Customer Record" />
+		
+		<choice>
+			<when expression="#[flowVars.customerRecordDeleted]">
+				<!-- No payload to set - Log and return -->
+				<logger message = "Record successfully deleted" />
+			</when>
+			<otherwise>
+
+				<!-- Set HTTP 500 Response -->
+				<set-payload value="{&#xA;  &quot;status&quot;: 500,&#xA;  &quot;errorMessage&quot;: &quot;Internal server error.&quot;,&#xA;  &quot;errorCode&quot;: 5000,&#xA;  &quot;additionalInfo&quot;: &quot;An unexpected error occurred. If the issue persists please contact your system administrator.&quot;&#xA;}" doc:name="Set Payload" />
+				<message-properties-transformer doc:name="Set http status Properties">
+					<add-message-property key="Content-Type" value="application/json" />
+					<add-message-property key="http.status" value="500" />
+				</message-properties-transformer>
+
+			</otherwise>
+		</choice>
+
+	</flow>
+
+
+	<!-- Subflow to perform Bearer Token Validation -->
+	<!-- Sets a boolean flow variable validToken which indicates if the token is valid or not -->
+	<!-- TODO: Would need to validate against IDS, however for now just do basic value check -->
+	<sub-flow name="commonValidateToken">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: commonValidateToken" level="WARN" doc:name="Logger" />
+		<set-variable variableName="validToken" value="true" />
+	</sub-flow>
+
+	<!-- Subflow to perform validation of the input request/payload -->
+	<!-- Sets a boolean flow variable validRequest which indicates if the request is valid or not -->
+	<!-- TODO: Would need to perform validation of the input request/payload and associated fields -->
+	<sub-flow name="commonValidateRequest">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: commonValidateRequest" level="WARN" doc:name="Logger" />
+		<set-variable variableName="validRequest" value="true" />
+	</sub-flow>
+
+	<!-- Subflow to retrieve customer records -->
+	<!-- Sets a flow variable customerResult which contains the customer results found -->
+	<!-- TODO: Would need to perform the retrieval of the customer results -->
+	<sub-flow name="retrieveCustomers">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: retrieveCustomers" level="WARN" doc:name="Logger" />
+		<set-variable variableName="customerResult" value="RESULT1" />
+	</sub-flow>
+
+	<!-- Subflow for creating new customers -->
+	<!-- Sets the flow variable newCustomerRecord with the details of the new customer -->
+	<!-- TODO: Would need to perform the creation of the customer record -->
+	<sub-flow name="createNewCustomer">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: createNewCustomer" level="WARN" doc:name="Logger" />
+		<set-variable variableName="newCustomerRecord" value="RESULT1" />
+	</sub-flow>
+
+	<!-- Subflow to retrieve a customer record -->
+	<!-- Sets a flow variable customerRecord which contains the customer record found -->
+	<!-- TODO: Would need to perform the retrieval of the customer record -->
+	<sub-flow name="retrieveCustomerRecord">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: retrieveCustomerRecord" level="WARN" doc:name="Logger" />
+		<set-variable variableName="customerRecord" value="RESULT1" />
+	</sub-flow>
+
+	<!-- Subflow to update a customer record -->
+	<!-- Sets a flow variable customerRecord which contains the customer record updated -->
+	<!-- TODO: Would need to perform the update of the customer record -->
+	<sub-flow name="updateCustomerRecord">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: updateCustomerRecord" level="WARN" doc:name="Logger" />
+		<set-variable variableName="customerRecord" value="RESULT1" />
+	</sub-flow>
+
+	<!-- Subflow to delete a customer record -->
+	<!-- Sets a boolean flow variable customerRecordDeleted indicates that the customer record has been deleted -->
+	<!-- TODO: Would need to perform the deletion of the customer record -->
+	<sub-flow name="deleteCustomerRecord">
+		<logger message="**UNIMPLEMENTED SUB-FLOW: deleteCustomerRecord" level="WARN" doc:name="Logger" />
+		<set-variable variableName="customerRecordDeleted" value="true" />
+	</sub-flow>
+
+
+
+	<apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping">
+		<apikit:mapping statusCode="404">
+			<apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+			<set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload" />
+		</apikit:mapping>
+		<apikit:mapping statusCode="405">
+			<apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+			<set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload" />
+		</apikit:mapping>
+		<apikit:mapping statusCode="406">
+			<apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+			<set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload" />
+		</apikit:mapping>
+	</apikit:mapping-exception-strategy>
+</mule>

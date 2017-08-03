@@ -1,0 +1,380 @@
+#%RAML 1.0
+title: My Organization API
+version: v1
+baseUri: http://api.myorganization.com/{version}
+mediaType: application/json
+documentation:
+  - title: Welcome to My Organization API
+    content: |
+      API to expose My Organization information.
+      Support for retrieving, creating, updating and deleting of customers is all possible through this breakthrough API.
+types:
+  customer:
+    properties:
+      customerId: string
+      firstName: string
+      lastName: string
+      address: string
+      active: boolean
+  ErrorResponse:
+    properties:
+      status: number
+      errorMessage: string
+      errorCode: number
+      additionalInfo?: string
+resourceTypes:
+  collection:
+    description: Collection of <<resourcePathName>> in MyOrganization.com
+    get:
+      description: Retrieves a list of <<resourcePathName>>.
+      responses:
+        200:
+          headers:
+            Content-Type:
+          body:
+            application/json:
+              type: <<resourcePathName|!singularize>>[]
+        401:
+          description: Unauthorized access to the API
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 401,
+                  "errorMessage": "Missing Bearer Token",
+                  "errorCode": 4001,
+                  "additionalInfo": "Insufficient Credentials provided."
+                }
+        404:
+          description: Unable to retrieve <<resourcePathName>>.
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 404,
+                  "errorMessage": "No <<resourcePathName>> found",
+                  "errorCode": 1001,
+                  "additionalInfo": "No <<resourcePathName|!singularize>> records were found. Please check your query and try again"
+                }
+        500:
+          description: Internal server error
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 500,
+                  "errorMessage": "Internal server error.",
+                  "errorCode": 5000,
+                  "additionalInfo": "An unexpected error occurred. If the issue persists please contact your system administrator."
+                }
+    post:
+      description: Creates a new <<resourcePathName|!singularize>> record.
+      body:
+        application/json:
+          type: object
+      responses:
+        201:
+          description: The <<resourcePathName|!singularize>> record was successfully created
+          body:
+            application/json:
+              type: <<resourcePathName|!singularize>>
+        400:
+          description: The received request was invalid
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 400,
+                  "errorMessage": "Invalid/Bad Request received.",
+                  "errorCode": 4000,
+                  "additionalInfo": "Please check your request payload/structure is correct and try again."
+                }
+        401:
+          description: Unauthorized access to the API
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 401,
+                  "errorMessage": "Missing Bearer Token",
+                  "errorCode": 4001,
+                  "additionalInfo": "Insufficient Credentials provided."
+                }
+        500:
+          description: Internal server error
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 500,
+                  "errorMessage": "Internal server error.",
+                  "errorCode": 5000,
+                  "additionalInfo": "An unexpected error occurred. If the issue persists please contact your system administrator."
+                }
+  collection-item:
+    description: A <<resourcePathName|!singularize>> record
+    get:
+      description: Retrieves the <<resourcePathName|!singularize>> with the <<resourcePathName|!singularize>>Id = {<<resourcePathName|!singularize>>Id}
+      responses:
+        200:
+          description: The <<resourcePathName|!singularize>> record was successfully retrieved.
+          body:
+            application/json:
+              type: <<resourcePathName|!singularize>>
+        401:
+          description: Unauthorized access to the API
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 401,
+                  "errorMessage": "Missing Bearer Token",
+                  "errorCode": 4001,
+                  "additionalInfo": "Insufficient Credentials provided."
+                }
+        404:
+          description: The <<resourcePathName|!singularize>> record was not found.
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 404,
+                  "errorMessage": "The <<resourcePathName|!singularize>> record was not found",
+                  "errorCode": 1001,
+                  "additionalInfo": "No <<resourcePathName|!singularize>> record with the <<resourcePathName|!singularize>>Id = {<<resourcePathName|!singularize>>Id} were found. Please check your query and try again"
+                }
+        500:
+          description: Internal server error
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 500,
+                  "errorMessage": "Internal server error.",
+                  "errorCode": 5000,
+                  "additionalInfo": "An unexpected error occurred. If the issue persists please contact your system administrator."
+                }
+traits:
+  paged:
+    description: Trait for adding paged results support to a resource.
+    queryParameters:
+      pageNumber:
+        description: The page number of the results to return
+        type: integer
+        required: false
+        example: 5
+        default: 0
+      pageSize:
+        description: The number of records in each page request.
+        type: integer
+        required: false
+        example: 5
+        default: 10
+  ordered:
+    description: Trait for returning ordered results of a resource.
+    queryParameters:
+      orderBy:
+        description: Order by <<fieldList>>
+        type: string
+        required: false
+/customers:
+  type: collection
+  get:
+    is: [paged, ordered: {fieldList : "firstName, lastName"}]
+    description: Retrieves a list of customers. Additional search parameters can be specified to obtain customer records that match these criteria.
+    queryParameters:
+      firstName:
+        displayName: First Name
+        type: string
+        description: The customers First Name to search
+        example: John
+        required: false
+      lastName:
+        displayName: Last Name
+        type: string
+        description: The customers Last Name to search
+        example: Doe
+        required: false
+      address:
+        displayName: Address
+        type: string
+        description: The customers Address to search
+        example: 123 Fake Street
+        required: false
+      lastModified:
+        displayName: Last Modified
+        type: datetime
+        description: Date time since the customer record was last modified.
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [{
+                "customerId": "111",
+                "firstName":"James",
+                "lastName": "Test",
+                "address": "456 Mars Road",
+                "active": true
+              },
+              {
+                "customerId": "222",
+                "firstName":"Jane",
+                "lastName": "Doe",
+                "address": "123 Fake Street",
+                "active": false
+              }]
+  post:
+    body:
+      application/json:
+        type: object
+        example: |
+          {
+            "firstName":"John",
+            "lastName": "Doe",
+            "address": "123 Fake Street"
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            example: |
+              {
+                "customerId": "333",
+                "firstName":"John",
+                "lastName": "Doe",
+                "address": "123 Fake Street",
+                "active": true
+              }
+  /{customerId}:
+    type: collection-item
+    uriParameters:
+      customerId:
+        description: The customerId of the customer record
+        type: integer
+        example: 333
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "customerId": "333",
+                  "firstName": "John",
+                  "lastName" : "Doe",
+                  "address": "123 Fake Street",
+                  "active": true
+                }
+    delete:
+      description: Deletes the customer record
+      responses:
+        204:
+          description: Customer record has been successfully deleted
+        401:
+          description: Unauthorized access to the API
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 401,
+                  "errorMessage": "Missing Bearer Token",
+                  "errorCode": 4001,
+                  "additionalInfo": "Insufficient Credentials provided."
+                }
+        500:
+          description: Internal server error
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 500,
+                  "errorMessage": "Internal server error.",
+                  "errorCode": 5000,
+                  "additionalInfo": "An unexpected error occurred. If the issue persists please contact your system administrator."
+                }
+    put:
+      description: Updates an existing customer record
+      body:
+        application/json:
+          type: object
+          example: |
+            {
+              "firstName":"John",
+              "lastName": "Doe",
+              "address": "700 Mars Road"
+            }
+      responses:
+        200:
+          description: Customer record was successfully updated
+          body:
+            application/json:
+              type: customer
+              example: |
+                {
+                  "customerId": "333",
+                  "firstName": "John",
+                  "lastName": "Doe",
+                  "address": "700 Mars Road",
+                  "active": true
+                }
+        400:
+          description: The received request was invalid
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 400,
+                  "errorMessage": "Invalid/Bad Request received.",
+                  "errorCode": 4000,
+                  "additionalInfo": "Please check your request payload/structure is correct and try again."
+                }
+        401:
+          description: Unauthorized access to the API
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 401,
+                  "errorMessage": "Missing Bearer Token",
+                  "errorCode": 4001,
+                  "additionalInfo": "Insufficient Credentials provided."
+                }
+        404:
+          description: The customer record could not be updated, as it does not exist.
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 404,
+                  "errorMessage" : "Customer update failed.",
+                  "errorCode": 1002,
+                  "additionalInfo": "Update of the customer record failed, as the customer record does not exist for <<resourcePathName|!singularize>>Id = {<<resourcePathName|!singularize>>Id}"
+                }
+        500:
+          description: Internal server error
+          body:
+            application/json:
+              type: ErrorResponse
+              example: |
+                {
+                  "status": 500,
+                  "errorMessage": "Internal server error.",
+                  "errorCode": 5000,
+                  "additionalInfo": "An unexpected error occurred. If the issue persists please contact your system administrator."
+                }

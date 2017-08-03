@@ -1,0 +1,27 @@
+SUCCESS - Test resourceNotFound404Test finished Successfully.
+SUCCESS - Test /POST:customers-HTTP-500-Test finished Successfully.
+SUCCESS - Test /DELETE:customers/customerId-HTTP-204-Test finished Successfully.
+SUCCESS - Test /PUT:customers/customerId-HTTP-500-Test finished Successfully.
+SUCCESS - Test /GET:customers/customerId-HTTP-500-Test finished Successfully.
+SUCCESS - Test /DELETE:customers/customerId-HTTP-401-Test finished Successfully.
+SUCCESS - Test /POST:customers-HTTP-400-Test finished Successfully.
+SUCCESS - Test /GET:customers-HTTP-404-Test finished Successfully.
+SUCCESS - Test /GET:customers/customerId-HTTP-404-Test finished Successfully.
+SUCCESS - Test /PUT:customers/customerId-HTTP-200-Test finished Successfully.
+SUCCESS - Test notAcceptable406Test finished Successfully.
+SUCCESS - Test /GET:customers-HTTP-401-Test finished Successfully.
+SUCCESS - Test /POST:customers-HTTP-401-Test finished Successfully.
+SUCCESS - Test /GET:customers/customerId-HTTP-200-Test finished Successfully.
+SUCCESS - Test /PUT:customers/customerId-HTTP-400-Test finished Successfully.
+SUCCESS - Test /PUT:customers/customerId-HTTP-401-Test finished Successfully.
+SUCCESS - Test /PUT:customers/customerId-HTTP-404-Test finished Successfully.
+SUCCESS - Test methodNotAllowed405Test finished Successfully.
+SUCCESS - Test /GET:customers-HTTP-500-Test finished Successfully.
+SUCCESS - Test /POST:customers-HTTP-201-Test finished Successfully.
+SUCCESS - Test /DELETE:customers/customerId-HTTP-500-Test finished Successfully.
+SUCCESS - Test /GET:customers/customerId-HTTP-401-Test finished Successfully.
+SUCCESS - Test /GET:customers-HTTP-200-Test finished Successfully.
+
+==============================================================================
+Tests run: 23 - Failures: 0 - Errors: 0 - Skipped: 0 - Time elapsed: 6.628 sec
+==============================================================================

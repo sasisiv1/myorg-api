@@ -1,0 +1,6 @@
+{
+  "status": 404,
+  "errorMessage": "The customer record was not found",
+  "errorCode": 1001,
+  "additionalInfo": "No customer record with the customerId = {customerId} were found. Please check your query and try again"
+}
